@@ -1,0 +1,23 @@
+focus = {
+	id = GON_delegitimize_aragorns_claim
+	ai_will_do = {
+		factor = 3
+	}
+	mutually_exclusive = {
+		focus = GON_honor_isildurs_legacy
+	}
+	search_filters = {
+		FOCUS_FILTER_POLITICAL
+		FOCUS_FILTER_UNALIGNED
+	}
+	completion_reward = {
+		add_timed_idea
+		days = 365
+		idea = generic_unaligned_intermediate
+	}
+	icon = GFX_goal_generic_crown_smashed
+	x = 14
+	y = 0
+	cost = 10
+	available_if_capitulated = yes
+}
