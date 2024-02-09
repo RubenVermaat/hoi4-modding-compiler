@@ -3,6 +3,7 @@ class Focus:
         self.id = id
         self.arguments = []
         self.groups = []
+        self.comments = []
 
     def GetID(self):
         return self.id
@@ -10,6 +11,8 @@ class Focus:
         self.arguments.append(Argument(type, value))
     def AddGroup(self, group):
         self.groups.append(group)
+    def AddComment(self, comment):
+        self.comments.append(comment)
 
 class Argument():
     def __init__(self, type, value):
