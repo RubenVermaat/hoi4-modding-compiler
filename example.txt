@@ -52,3 +52,43 @@ focus = {
 		increase_centralization = yes
 	}
 }
+focus = {
+	id = GON_purge_the_crown_loyalists
+	icon = GFX_goal_support_revolutionary
+	relative_position_id = GON_delegitimize_aragorns_claim
+	x = 1
+	y = 1
+	cost = 10
+	ai_will_do = {
+		factor = 3
+	}
+	prerequisite = {
+		focus = GON_delegitimize_aragorns_claim
+	}
+	search_filters = {
+		FOCUS_FILTER_POLITICAL
+		FOCUS_FILTER_STABILITY
+		FOCUS_FILTER_REVOLUTIONARY
+		FOCUS_FILTER_UNALIGNED
+	}
+	completion_reward = {
+		add_popularity = {
+			ideology = unaligned
+			popularity = 005
+		}
+	}
+		add_popularity = {
+			ideology = revolutionary
+			popularity = 005
+		}
+		add_popularity = {
+			ideology = belligerent
+			popularity = 005
+		}
+		if = {
+			denethor_gets_less_paranoid = yes
+			limit = {
+				denethor_is_leader = yes
+			}
+		}
+}

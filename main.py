@@ -14,8 +14,9 @@ focus_tree = FocusTree()
 indents = 0
 typeRegex = '[^a-zA-Z0-9_]'
 valueRegex = '[^a-zA-Z0-9_]'
+commandRegex = '[^a-zA-Z0-9_#]'
 for line in file.readlines():
-    if line.startswith("#") == False:
+    if re.sub(commandRegex, '', line).startswith("#") == False:
         if line.startswith("focus"):
             tempName = re.sub(typeRegex, '', line[0:line.index(':')])
             indents = 0
