@@ -20,8 +20,21 @@ class Argument():
         self.value = value
 
 class Group():
-    def __init__(self, name):
+    def __init__(self, name, index):
         self.name = name
         self.arguments = []
+        self.groups = []
+        self.index = index
     def AddArgument(self, argument):
         self.arguments.append(argument)
+    def AddGroup(self, name, index):
+        self.groups.append(Group(name, index))
+    def SearchGroup(self, index):
+        if self.index == index:
+            return self
+        if len(self.groups) > 0:
+            for i in range((len(self.groups)-1), -1, -1):
+                if self.groups[i].index == index:
+                    return self.groups[i]
+                else:
+                    return self.groups[i].SearchGroup(index)

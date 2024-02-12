@@ -3,65 +3,66 @@ import re
 import os
 from files.data import Data
 from files.focus import Focus, Argument, Group
+from files.focus_tree import FocusTree
 
 file = open(r"C:\Users\ruben\Documents\Paradox Interactive\Hearts of Iron IV\mod\Compiler-mod\gondor.txt", "r")
 data = Data()
 creating = 0
 group = None
 focus = None
+focus_tree = FocusTree()
+indents = 0
 typeRegex = '[^a-zA-Z0-9_]'
 valueRegex = '[^a-zA-Z0-9_]'
 for line in file.readlines():
     if line.startswith("#") == False:
-        ### Defining what it is creating
-        if creating == 0:
-            if line.startswith("focus_tree"):
-                print("nothing")
-        elif creating == 1:
-            if line.startswith("\t"):
-                creating = 2
-        elif creating == 2: #Creating focus
-            if line.find("\t") == -1:
-                creating = 1
-                data.AddFocus(focus)
-            if line.startswith("\t\t"):
-                creating = 3
-        elif creating == 3: #Creating group
-            if line.startswith("\t\t") == False:
-                creating = 2
-                focus.AddGroup(group)
-        
-        ### Creating that
-        if creating == 1:
-            print("")
-        if creating == 2:
-            if line.startswith("\t"): #Checking for indent
-                if line.find("=") != -1:
-                    type = re.sub(typeRegex, '', line[0:line.index('=')])
-                    value = re.sub(valueRegex, '', line[line.index('=')+1:len(line)])
-                    if type == "id":
-                        focus = Focus(value)
-                    else:
-                        focus.AddArgument(type, value)
-                elif line.find(":") != -1:
-                    name = re.sub(typeRegex, '', line[0:line.index(':')])
-                    creating = 2
-                    group = Group(name)
-        elif creating == 3:
-            if line.startswith("\t\t"):
-                if line.find("=") != -1:
-                    type = re.sub(typeRegex, '', line[0:line.index('=')])
-                    value = re.sub(valueRegex, '', line[line.index('=')+1:len(line)])
-                else:
-                    type = "SingleArgument"
-                    value = re.sub(valueRegex, '', line)
-                group.AddArgument(Argument(type, value))
-        if line.startswith("focus:"):
-            creating = 1
+        if line.startswith("focus"):
+            tempName = re.sub(typeRegex, '', line[0:line.index(':')])
+            indents = 0
+            focus_tree.AddGroup(tempName, indents)
+        elif line.find(":") != -1:
+            tempName = re.sub(typeRegex, '', line[0:line.index(':')])
+            if focus_tree.groups != []:
+                if line.count("\t") < indents:
+                    indents = line.count("\t")
+                    focus_tree.GetLastGroup().AddGroup(tempName, indents)
+                elif line.count("\t") > indents: #Group in a group
+                    focus_tree.GetLastGroupSubgroup(indents).AddGroup(tempName, (indents+1))
+                elif line.count("\t") == indents:
+                    focus_tree.GetIndexLastGroup((indents-1)).AddGroup(tempName, indents)
+        elif line.find("=") != -1:
+            type = re.sub(typeRegex, '', line[0:line.index('=')])
+            value = re.sub(valueRegex, '', line[line.index('=')+1:len(line)])
+            indents = line.count("\t")
+            focus_tree.GetIndexLastGroup((indents-1)).AddArgument(Argument(type, value))
+        elif len(re.sub(valueRegex, '', line)) > 0:
+            type = "SingleArgument"
+            value = re.sub(valueRegex, '', line)
+            indents = line.count("\t")
+                
+            focus_tree.GetIndexLastGroup((indents-1)).AddArgument(Argument(type, value))
+                #focus_tree.GetLastGroup().AddArgument(Argument(type, value))
     else: 
         if focus != None:
-            focus.AddComment(line[1:len(line)])
+            print(line[1:len(line)])
 file.close()
+
+def recursive_loop(f, item):
+    indents = ""
+    for i in range(item.index):
+        indents = indents + "\t"
+    f.write(indents + item.name + " = {\n")
+    if len(item.arguments) > 0:
+        for argument in item.arguments:
+            f.write(indents + "\t" + WriteArgument(argument) + "\n")
+    if len(item.groups) > 0:
+        for group in item.groups:
+            recursive_loop(f, group)
+        f.write(indents + "}\n")
+    else:
+        f.write(indents + "}\n")
+        indents = indents[:-2]
+    
 
 def WriteArgument(argument):
     if argument.type == "prerequisite":
@@ -73,22 +74,9 @@ def WriteArgument(argument):
 
 file_path = 'example.txt'
 os.remove(file_path)
-# Open a file in write mode
 with open(file_path, 'w') as f:
-    for focus in data.focus_tree.focuses:
-        for comment in focus.comments:
-            f.write("#" + comment)
-        f.write("focus = {\n")
-        f.write("\tid = " + focus.GetID() + "\n")
-        for group in focus.groups:
-            f.write("\t" + group.name + " = {\n")
-            for argument in group.arguments:
-                f.write("\t\t" + WriteArgument(argument) + "\n")
-            f.write("\t}\n")
-        for argument in focus.arguments:
-            f.write("\t" + WriteArgument(argument) + "\n")
-        f.write("}\n")
-
+    for group in focus_tree.groups:
+        recursive_loop(f, group)
 
 # ### Getting the id name from the line
 # result = line.replace("id","")
