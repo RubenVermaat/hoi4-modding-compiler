@@ -1,3 +1,8 @@
+continuous_focus_position = {
+	x = 50
+	y = 1700
+}
+default = no
 focus_tree = {
 	id = gondor
 	country = {
@@ -34,29 +39,9 @@ focus = {
 }
 focus = {
 	id = GON_change_the_law
-	icon = GFX_goal_generic_crown_smashed
-	prerequisite { focus = GON_delegitimize_aragorns_claim }
+	icon = GFX_goal_generic_forceful_treaty
 	relative_position_id = GON_delegitimize_aragorns_claim
-	x = 1
-	y = 1
-	cost = 10
-	ai_will_do = {
-		factor = 3
-	}
-	search_filters = {
-		FOCUS_FILTER_POLITICAL
-	}
-	completion_reward = {
-		add_stability = 01
-		add_political_power = 100
-		increase_centralization = yes
-	}
-}
-focus = {
-	id = GON_purge_the_crown_loyalists
-	icon = GFX_goal_support_revolutionary
-	relative_position_id = GON_delegitimize_aragorns_claim
-	x = 1
+	x = -1
 	y = 1
 	cost = 10
 	ai_will_do = {
@@ -67,23 +52,14 @@ focus = {
 	}
 	search_filters = {
 		FOCUS_FILTER_POLITICAL
-		FOCUS_FILTER_STABILITY
-		FOCUS_FILTER_REVOLUTIONARY
-		FOCUS_FILTER_UNALIGNED
 	}
 	completion_reward = {
-		add_popularity = {
-			ideology = unaligned
-			popularity = 005
-		}
-	}
-		add_popularity = {
-			ideology = revolutionary
-			popularity = 005
-		}
-		add_popularity = {
-			ideology = belligerent
-			popularity = 005
+		add_stability = -0.1
+		add_political_power = 100
+		increase_centralization = yes
+		add_timed_idea = {
+			days = 365
+			idea = generic_unaligned_intermediate
 		}
 		if = {
 			denethor_gets_less_paranoid = yes
@@ -91,4 +67,39 @@ focus = {
 				denethor_is_leader = yes
 			}
 		}
+	}
+}
+focus = {
+	id = GON_gondor_propaganda
+	icon = GFX_goal_gondor_dol_amroth_propaganda
+	relative_position_id = GON_enforce_militair_loyalty
+	x = -2
+	y = 1
+	cost = 5
+	ai_will_do = {
+		factor = 3
+	}
+	prerequisite = {
+		focus = GON_enforce_militair_loyalty
+	}
+	available = {
+		DAM = {
+			is_subject_of = ROOT
+		}
+	}
+	search_filters = {
+		FOCUS_FILTER_POLITICALFOCUS_FILTER_UNALIGNED
+	}
+	completion_reward = {
+		custom_effect_tooltip = GON_tooltip_lower_change_of_dol_amroth_leaving
+		add_popularity = {
+			ideology = unaligned
+			popularity = 0.075
+		}
+		hidden_effect = {
+			DAM = {
+				set_country_flag = denethor_supporters
+			}
+		}
+	}
 }
